@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="show-list-page">
   <template>
@@ -7,15 +8,97 @@
         display: block;
       }
     </style>
-    <h1>Show list</h1>
+
+    <iron-ajax
+        auto
+        url="[[_computedUrl]]"
+        handle-as="json"
+        last-response="{{response}}"></iron-ajax>
+
+    <p>[[computedUrl]]</p>
+    <template is="dom-repeat" items="[[response.items]]">
+      <h2>[[item.snippet.title]]</h2>
+      <p>[[item.snippet.description]]</p>
+    </template>
+
   </template>
 
   <script>
 
     Polymer({
 
-      is: 'show-list-page'
-      
+      is: 'show-list-page',
+
+      properties: {
+
+        active: Boolean,
+
+        subroute: Object,
+
+        channelId: {
+          type: String,
+          value: 'UCd_1KHg4t2VKGsSDF8OD5Cw'
+        },
+
+        maxResults: {
+          type: Number,
+          value: 20
+        },
+        
+        pageToken: {
+          type: String,
+          value: ''
+        },
+
+        apiKey: {
+          type: String,
+          value: 'AIzaSyBYi4cVG3YirDUx915j8nLEMCrnuuh4vQI'
+        },
+
+        shows: {
+          type: Array,
+          value: function() {
+            return [
+              { name: 'All', subroute: 'all', q: '' },
+              { name: 'Javascript', subroute: 'javascript', q: 'javascript' },
+              { name: 'Git', subroute: 'git', q: 'git' },
+              { name: 'Android', subroute: 'android', q: 'android' }
+            ];
+          }
+        },
+
+        show: {
+          type: Object,
+          computed: '_getActiveShow(shows, subroute)',
+          observer: '_showDidChange'
+        },
+
+        _computedUrl: {
+          type: String,
+          readonly: true,
+          computed: '_computeUrl(show.q, channelId, maxResults, pageToken, apiKey)'
+        }
+      },
+
+      _getActiveShow: function(shows, subroute) {
+        var key = subroute.path ? subroute.path.substr(1) : 'all';
+        var res = shows.filter(function(show) { return show.subroute == key; });
+        return res[0] ? res[0] : shows[0];
+      },
+
+      _showDidChange: function() {
+        this.pageToken = '';
+      },
+
+      _computeUrl: function(q, channelId, maxResults, pageToken, apiKey) {
+        return 'https://www.googleapis.com/youtube/v3/search?part=snippet' +
+          '&q=' + q +
+          '&channelId=' + channelId +
+          '&order=date' + 
+          '&maxResults=' + maxResults + 
+          '&pageToken=' + pageToken +
+          '&key=' + apiKey;
+      }
     });
 
   </script>
