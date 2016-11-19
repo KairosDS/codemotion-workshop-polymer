@@ -205,6 +205,10 @@
         }
       },
 
+      observers: [
+        '_updateToolbar(active, smallScreen)'
+      ],
+
       _getActiveShow: function(shows, subroute) {
         var key = subroute.path ? subroute.path.substr(1) : 'all';
         var res = shows.filter(function(show) { return show.subroute == key; });
@@ -213,6 +217,7 @@
 
       _showDidChange: function() {
         this.pageToken = '';
+        this.openedDrawer = this.persistentDrawer;
       },
 
       _computeUrl: function(q, channelId, maxResults, pageToken, apiKey) {
@@ -223,6 +228,22 @@
           '&maxResults=' + maxResults + 
           '&pageToken=' + pageToken +
           '&key=' + apiKey;
+      },
+
+      _updateToolbar: function(active, smallScreen) {
+        if (active) {
+          this.fire('setup-toolbar', {
+            leftItemIcon: smallScreen ? 'menu' : '',
+            leftItemClickAction: this._leftItemClicked.bind(this)
+          });
+        }
+
+        this.persistentDrawer = !smallScreen;
+        this.openedDrawer = !smallScreen;
+      },
+
+      _leftItemClicked: function() {
+        this.openedDrawer = true;
       }
     });
 

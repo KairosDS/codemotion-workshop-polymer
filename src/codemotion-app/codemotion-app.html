@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 
 <link rel="import" href="../show-list-page/show-list-page.html">
 <link rel="import" href="../show-video-page/show-video-page.html">
@@ -118,8 +119,29 @@
 
       is: 'codemotion-app',
 
-      properties: {
+      listeners: {
+        'setup-toolbar': '_setupToolbar'
       },
+
+      attached: function() {
+        this.listen(window, 'location-changed', '_onLocationChange');
+      },
+
+      _setupToolbar: function(e) {
+        this.$.leftItem.onclick = e.detail.leftItemClickAction;
+
+        if (e.detail.leftItemIcon) {
+          this.$.leftItem.setAttribute('icon', e.detail.leftItemIcon);
+        } else {
+          this.$.leftItem.removeAttribute('icon');
+        }
+      },
+
+      _onLocationChange: function() {
+        this.$.pages.selectedItem.backAction = function() {
+          window.history.back();
+        };
+      }
 
     });
   </script>
