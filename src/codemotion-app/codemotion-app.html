@@ -7,6 +7,9 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 
+<link rel="import" href="../show-list-page/show-list-page.html">
+<link rel="import" href="../show-video-page/show-video-page.html">
+
 <dom-module id="codemotion-app">
   <template>
     <style>
@@ -92,10 +95,21 @@
         <paper-icon-button id="leftItem"></paper-icon-button>
         <a href="/" title="Codemotion">
           <img src="/images/codemotion-white.svg" class="logo"/>
-          <h1 class="title">Codemotion - [[routeData.page]]</h1>
+          <h1 class="title">Codemotion</h1>
         </a>
       </app-toolbar>
     </app-header>
+
+    <iron-pages
+      id="pages"
+      role="main"
+      selected="[[routeData.page]]"
+      selected-attribute="active"
+      attr-for-selected="name"
+      fallback-selection="show">
+      <show-list-page name="show" subroute="[[subroute]]"></show-list-page>
+      <show-video-page name="video" subroute="[[subroute]]"></show-video-page>
+    </iron-pages>
 
   </template>
 
