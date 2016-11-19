@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 
 <dom-module id="show-list-page">
   <template>
@@ -95,6 +96,20 @@
         min-height: 100vh;
       }
 
+      .loading-indicator {
+        font-size: 15px;
+        line-height: 120px;
+        color: #aaa;
+        font-weight: 100;
+        text-align: center;
+        opacity: 1;
+      }
+
+      .loading-indicator[off] {
+        opacity: 0;
+      }
+
+
       @media (max-width: 640px) {
         .grid-item {
           width: 100%;
@@ -118,7 +133,7 @@
         auto
         url="[[_computedUrl]]"
         handle-as="json"
-        last-response="{{response}}"></iron-ajax>
+        on-response="_onXhrResponse"></iron-ajax>
     
     <iron-media-query
         query="max-width: 1280px"
@@ -137,7 +152,7 @@
 
     <p>[[computedUrl]]</p>
     <div id="list" grid>
-    <template is="dom-repeat" items="[[response.items]]">
+    <template is="dom-repeat" items="[[items]]">
       <div class="grid-item">
         <a href="/video/[[item.id.videoId]]" style$="background-image:url([[item.snippet.thumbnails.high.url]]);">
           <div class="title">[[item.snippet.title]]</div>
@@ -145,6 +160,14 @@
       </div>
     </template>
     </div>
+
+    <div class="loading-indicator" off$="[[lastPage]]">More videos to come...</div>
+
+    <iron-scroll-threshold
+        id="scrollThreshold"
+        scroll-target="document"
+        lower-threshold="0"
+        on-lower-threshold="_onLowerThreshold"></iron-scroll-threshold>
 
   </template>
 
@@ -202,7 +225,16 @@
           type: String,
           readonly: true,
           computed: '_computeUrl(show.q, channelId, maxResults, pageToken, apiKey)'
-        }
+        },
+
+        items: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+
+        lastPage: Boolean,
       },
 
       observers: [
@@ -217,6 +249,7 @@
 
       _showDidChange: function() {
         this.pageToken = '';
+        this.lastPage = false;
         this.openedDrawer = this.persistentDrawer;
       },
 
@@ -244,7 +277,36 @@
 
       _leftItemClicked: function() {
         this.openedDrawer = true;
-      }
+      },
+
+      _onXhrResponse: function(e) {
+        var response = e.detail.response;
+        var items = response.items;
+
+        if (items.length === 0) {
+          this.lastPage = true;
+        } else {
+          if (this.currentShow != this.show) {
+            this.set('items', []);
+          }
+
+          if (!response.nextPageToken) {
+            this.lastPage = true;
+          } else {
+            this.nextPageToken = response.nextPageToken;
+          }
+          this.currentShow = this.show;
+
+          items.forEach(function(item) {
+            this.push('items', item);
+          }, this);
+        }
+        this.$.scrollThreshold.clearTriggers();
+      },
+
+      _onLowerThreshold: function() {
+        this.pageToken = this.nextPageToken;
+      },
     });
 
   </script>
