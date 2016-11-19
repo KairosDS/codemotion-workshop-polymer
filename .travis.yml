@@ -1,0 +1,12 @@
+sudo: false
+language: node_js
+node_js: node
+install:
+  - npm install
+  - npm install -g bower gulp
+  - bower install
+  - gem install dpl
+script:
+  - npm run build
+after_success:
+  - dpl --provider=firebase --skip_cleanup --token="${FIREBASE_TOKEN}" --project="${FIREBASE_PROJECT_ID}"
