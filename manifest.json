@@ -1,0 +1,6 @@
+{
+  "name": "codemotion",
+  "short_name": "codemotion",
+  "start_url": "/",
+  "display": "standalone"
+}
