@@ -1,4 +1,6 @@
-# \<codemotion\>
+# \<codemotion 2016\>
+## Workshop Polymer de prototipo a producción 19 Nov.
+[Jorge del Casar](http://wwwtwitter.com/jorgecasar)
 
 
 
